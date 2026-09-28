@@ -367,4 +367,4 @@ Potential improvements and features:
 
 ---
 
-**Made with ❤️ for strategic life planning**
+**Readme was added by Copilot**
