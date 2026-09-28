@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Focus Tree</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+</head>
+<body>
+    <header class="topbar">
+        <div class="logo">FOCUS TREE</div>
+        <div class="current-focuses">
+            {% if active_focuses %}
+                {% for focus in active_focuses %}
+                    <div class="focus-tag">
+                        {% if focus.icon %}<img src="{{ focus.icon }}" alt="">{% endif %}
+                        {{ focus.name }}
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="focus-tag empty-focus">No available focuses</div>
+            {% endif %}
+        </div>
+        <div class="score-pill" title="Political power earned from completed focuses">
+            {{ overall.earned }} / {{ overall.possible }}
+            <span>political power</span>
+        </div>
+    </header>
+
+    <aside class="sidebar">
+        <div class="sidebar-title">Focus Trees</div>
+        {% for item in scopes %}
+            <a class="category {% if item == scope %}active{% endif %}" href="{{ url_for('index', scope=item) }}">
+                {{ item|capitalize }}
+                <small>{{ by_scope[item].earned }}</small>
+            </a>
+        {% endfor %}
+    </aside>
+
+    <main class="main">
+        <div class="tree-header">
+            <h1>{{ scope|capitalize }} Focus Tree</h1>
+            <p>{{ scope_copy[scope] }}</p>
+            <div class="tree-meta">
+                {{ by_scope[scope].earned }} / {{ by_scope[scope].possible }} PP in this tree
+            </div>
+        </div>
+
+        <section class="focus-tree">
+            {% if focuses %}
+                <div class="tree-canvas" id="tree-canvas">
+                    <svg class="tree-lines" id="tree-lines"></svg>
+                </div>
+            {% else %}
+                <div class="empty-tree">
+                    This tree is empty. Add a focus below — set points, pick a HOI4 icon, then start completing branches.
+                </div>
+            {% endif %}
+        </section>
+    </main>
+
+    <section class="add-panel">
+        <div class="add-title">Add Focus</div>
+        <form action="{{ url_for('create_focus') }}" method="POST">
+            {{ form.csrf_token }}
+            {{ form.icon(id="icon-input") }}
+            <div class="form-grid">
+                <div class="field">
+                    {{ form.name.label }}
+                    {{ form.name(class="input", placeholder="Focus name") }}
+                </div>
+                <div class="field">
+                    {{ form.description.label }}
+                    {{ form.description(class="textarea", placeholder="What this focus actually means") }}
+                </div>
+                <div class="field">
+                    {{ form.completion_time.label }}
+                    {{ form.completion_time(class="input", placeholder="e.g. 14 days") }}
+                </div>
+                <div class="field">
+                    {{ form.points.label }}
+                    {{ form.points(class="input", type="number", min="1", max="9999") }}
+                </div>
+                <div class="field">
+                    {{ form.scope.label }}
+                    {{ form.scope(class="select") }}
+                </div>
+                <div class="field">
+                    {{ form.parent_id.label }}
+                    {{ form.parent_id(class="select") }}
+                </div>
+                <button type="button" class="icon-button" id="open-picker">
+                    <img id="icon-preview" alt="" style="display:none">
+                    Choose icon
+                </button>
+                {{ form.submit(class="add-button") }}
+            </div>
+            {% if form.errors %}
+                <div class="form-errors">Check the form — name and points are required.</div>
+            {% endif %}
+        </form>
+    </section>
+
+    <div class="overlay" id="detail-overlay">
+        <div class="panel">
+            <div class="panel-head">
+                <h2 id="detail-name">Focus</h2>
+                <button class="close-x" type="button" data-close>&times;</button>
+            </div>
+            <div class="detail-layout">
+                <div class="detail-icon"><img id="detail-img" alt=""></div>
+                <div>
+                    <p class="detail-copy" id="detail-desc"></p>
+                    <div class="stat-row">
+                        <div class="stat">Reward: <b id="detail-points"></b></div>
+                        <div class="stat">Time: <b id="detail-time"></b></div>
+                        <div class="stat">Status: <b id="detail-status"></b></div>
+                        <div class="stat">Requires: <b id="detail-prereq"></b></div>
+                    </div>
+                    <div class="actions">
+                        <form id="complete-form" method="POST">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button class="primary" type="submit">Complete focus</button>
+                        </form>
+                        <form id="undo-form" method="POST">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit">Undo completion</button>
+                        </form>
+                        <form id="delete-form" method="POST" onsubmit="return confirm('Delete this focus?');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button class="danger" type="submit">Delete</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="overlay" id="picker-overlay">
+        <div class="panel">
+            <div class="panel-head">
+                <h2>HOI4 Icon Catalogue</h2>
+                <button class="close-x" type="button" data-close>&times;</button>
+            </div>
+            <div class="picker-tools">
+                <input class="input" id="icon-search" placeholder="Search icons…">
+                <select class="select" id="icon-category">
+                    {% for cat in icon_categories %}
+                        <option value="{{ cat.category }}" {% if cat.category == 'National focuses' %}selected{% endif %}>
+                            {{ cat.category }} ({{ cat.n }})
+                        </option>
+                    {% endfor %}
+                </select>
+                <button class="icon-button" type="button" id="refresh-icons" style="margin-top:0">Rescrape icons</button>
+            </div>
+            <div class="icon-grid" id="icon-grid"></div>
+            <div class="pager">
+                <button class="ghost" type="button" id="prev-page">Previous</button>
+                <span id="page-label"></span>
+                <button class="ghost" type="button" id="next-page">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <script id="focus-data" type="application/json">{{ focuses | tojson }}</script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
