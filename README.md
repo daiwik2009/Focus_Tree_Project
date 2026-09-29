@@ -1,8 +1,9 @@
 # Focus Tree Project
 
-<img width="1365" height="692" alt="3" src="https://github.com/user-attachments/assets/63aca2c2-e45c-4f9f-b4f6-fa19e56ee95c" />
-<img width="1364" height="684" alt="2" src="https://github.com/user-attachments/assets/7e91aa61-18c6-4fe8-b302-ae03ea005cb4" />
 <img width="1364" height="685" alt="1" src="https://github.com/user-attachments/assets/c338db96-3587-463d-94ce-be69d9c47449" />
+
+
+
 
 
 
@@ -51,6 +52,10 @@ In Hearts of Iron IV, a focus tree is a branching research tree where completing
 
 ---
 
+<img width="1364" height="684" alt="2" src="https://github.com/user-attachments/assets/7e91aa61-18c6-4fe8-b302-ae03ea005cb4" />
+
+
+
 ## 🛠️ Tech Stack
 
 | Layer | Technologies |
@@ -84,6 +89,9 @@ Focus_Tree_Project/
     ├── focus_tree.db      # SQLite database (auto-created)
     └── icon_cache/        # Downloaded icon images (auto-created)
 ```
+
+<img width="1365" height="692" alt="3" src="https://github.com/user-attachments/assets/63aca2c2-e45c-4f9f-b4f6-fa19e56ee95c" />
+
 
 ### Key Files Explained
 
