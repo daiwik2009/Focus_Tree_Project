@@ -1,5 +1,11 @@
 # Focus Tree Project
 
+<img width="1365" height="692" alt="3" src="https://github.com/user-attachments/assets/63aca2c2-e45c-4f9f-b4f6-fa19e56ee95c" />
+<img width="1364" height="684" alt="2" src="https://github.com/user-attachments/assets/7e91aa61-18c6-4fe8-b302-ae03ea005cb4" />
+<img width="1364" height="685" alt="1" src="https://github.com/user-attachments/assets/c338db96-3587-463d-94ce-be69d9c47449" />
+
+
+
 A mini life-schedule planner inspired by the focus tree mechanics from *Hearts of Iron IV*.  
 This project helps you break your life goals into structured, interconnected objectives across different time horizons: yearly, monthly, weekly, and lifetime plans.
 
