@@ -1,4 +1,6 @@
 .venv
 .vscode
 __pycache__/
+icon_cache/
+focus_tree.db
 
